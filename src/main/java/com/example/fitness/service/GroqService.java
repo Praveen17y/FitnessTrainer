@@ -2,8 +2,6 @@ package com.example.fitness.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -13,10 +11,6 @@ import java.util.*;
 
 @Service
 public class GroqService {
-
-
-    // Logger for debugging purposes.
-    private static final Logger logger = LoggerFactory.getLogger(GroqService.class);
 
     // ObjectMapper for JSON parsing and formatting.
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -29,7 +23,7 @@ public class GroqService {
         String url = "https://api.groq.com/openai/v1/chat/completions";
 
         if (groqApiKey == null || groqApiKey.isBlank()) {
-            logger.error("Groq API key is missing or empty!");
+
             return "<div class='alert alert-danger'>API key is missing</div>";
         }
 
@@ -81,7 +75,7 @@ public class GroqService {
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
-                logger.info("Raw API response: {}", responseBody);
+
 
                 // Parse the raw API response.
                 JsonNode rootNode = objectMapper.readTree(responseBody);
@@ -91,20 +85,16 @@ public class GroqService {
                     if (!contentNode.isMissingNode() && contentNode.isTextual()) {
                         // Directly return the HTML content without further parsing.
                         return contentNode.asText();
-                    } else {
-                        logger.error("Missing 'content' in the API response");
                     }
-                } else {
-                    logger.error("Missing or empty 'choices' array in the API response");
                 }
                 return "<div class='alert alert-danger'>Invalid response structure from API</div>";
-            } else {
-                logger.error("API request failed with status: {}", responseEntity.getStatusCodeValue());
-                return String.format("<div class='alert alert-danger'>API responded with status %d</div>", responseEntity.getStatusCodeValue());
             }
-        } catch (Exception e) {
-            logger.error("API request failed: {}", e.getMessage());
+        }
+        catch (Exception e) {
+
             return String.format("<div class='alert alert-danger'>API request failed: %s</div>", e.getMessage());
         }
+        return "";
+
     }
 }
